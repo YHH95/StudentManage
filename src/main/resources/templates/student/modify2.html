@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en"xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/basic.html}">
+<head>
+    <meta charset="UTF-8">
+    <title>modify2</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="row mt-3">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    수정페이지
+                </div>
+                <div class="card-body">
+
+
+
+                    <form th:action="@{/student/modify2}" method="post" id="f1">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">번호</span>
+                            <input type="text" class="form-control" th:value="${dto.sno}" name="sno" readonly>
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">이름</span>
+                            <input type="text" class="form-control" th:value="${dto.name}" name="name">
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">학년</span>
+                            <input type="text" class="form-control" th:value="${dto.level}" name="level">
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">학급</span>
+                            <input type="text" class="form-control" th:value="${dto.classnum}" name="classnum">
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">성적</span>
+                            <input type="text" class="form-control" th:value="${dto.score}" name="score">
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">태도</span>
+                            <input type="text" class="form-control" th:value="${dto.grade}" name="grade">
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">전화번호</span>
+                            <input type="text" class="form-control" th:value="${dto.phone}" name="phone">
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">비상연락망</span>
+                            <input type="text" class="form-control" th:value="${dto.phone2}" name="phone2">
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">비고</span>
+                            <input type="text" class="form-control" th:value="${dto.comment}" name="comment">
+                        </div>
+
+                        <div class="my-4">
+                            <div class="float-end">
+                                <button type="button" class="btn btn-primary listBtn">목록</button>
+                                <button type="button" class="btn btn-secondary modBtn">수정</button>
+                                <button type="button" class="btn btn-danger removeBtn">삭제</button>
+
+                            </div>
+                        </div>
+
+
+                    </form>
+
+
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script layout:fragment="script" th:inline="javascript">
+
+    const errors = [[${errors}]]
+    console.log(errors)
+
+    let errorMsg = ''
+
+    if(errors){
+        for (let i = 0; i < errors.length; i++){
+            errorMsg += `${errors[i].field}은(는) ${errors[i].code} \n`
+        }
+        history.replaceState({},null,null)
+        alert(errorMsg)
+    }
+
+    const link = [[${pageRequestDTO.getLink()}]]
+    const formObj = document.querySelector("#f1")
+
+    document.querySelector(".modBtn").addEventListener("click",function (e) {
+
+        e.preventDefault()
+        e.stopPropagation()
+
+        formObj.action = `/student/modify2?${link}`
+        formObj.method = 'post'
+        formObj.submit()
+    }, false)
+
+    document.querySelector(".removeBtn").addEventListener("click",function (e) {
+
+        e.preventDefault()
+        e.stopPropagation()
+
+        formObj.action = `/student/remove2?${link}`
+        formObj.method = 'post'
+        formObj.submit()
+    }, false)
+
+    document.querySelector(".listBtn").addEventListener("click",function (e) {
+
+        e.preventDefault()
+        e.stopPropagation()
+
+        formObj.action = `/student/list2?${link}`
+        formObj.method = 'post'
+        formObj.submit()
+    }, false)
+
+
+
+</script>
+
+
+</body>
+</html>

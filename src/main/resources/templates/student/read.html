@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>read</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <!-- Bootstrap Core CSS -->
+    <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+    <link href="/vendor/metisMenu/metisMenu.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="/dist/css/sb-admin-2.css" rel="stylesheet">
+
+    <!-- Morris Charts CSS -->
+    <link href="/vendor/morrisjs/morris.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+</head>
+<body>
+
+
+
+
+<h2>상세페이지</h2>
+
+<div class="mb-3" aria-readonly="true">
+    <label for="name" class="form-label">이름</label>
+    <input type="text" th:value = "${studentDTO.name}" class="form-control" id="name" name="name">
+</div>
+<div class="mb-3" aria-readonly="true">
+    <label for="level" class="form-label">학년</label>
+    <input type="text" th:value = "${studentDTO.level}" class="form-control" id="level" name="level">
+</div>
+<div class="mb-3" aria-readonly="true">
+    <label for="classnum" class="form-label">학급</label>
+    <input type="text" th:value = "${studentDTO.classnum}" class="form-control" id="classnum" name="classnum">
+</div>
+<div class="mb-3" aria-readonly="true">
+    <label for="phone" class="form-label">전화번호</label>
+    <input type="text" th:value = "${studentDTO.phone}" class="form-control" id="phone" name="phone">
+</div>
+<div class="mb-3" aria-readonly="true">
+    <label for="phone2" class="form-label">비상연락망</label>
+    <input type="text" th:value = "${studentDTO.phone2}" class="form-control" id="phone2" name="phone2">
+</div>
+<div class="mb-3" aria-readonly="true">
+    <label for="score" class="form-label">성적</label>
+    <input type="text" th:value = "${studentDTO.score}" class="form-control" id="score" name="score">
+</div>
+<div class="mb-3" aria-readonly="true">
+    <label for="grade" class="form-label">태도점수</label>
+    <input type="text" th:value = "${studentDTO.grade}" class="form-control" id="grade" name="grade">
+</div>
+<div class="mb-3" aria-readonly="true">
+    <label for="birthdate" class="form-label">생년월일</label>
+    <input type="text" th:value = "${studentDTO.birthdate}" class="form-control" id="birthdate" name="birthdate">
+</div>
+<div class="mb-3" aria-readonly="true">
+    <label for="comment" class="form-label">코멘트</label>
+    <input type="text" th:value = "${studentDTO.comment}" class="form-control" id="comment" name="comment">
+</div>
+
+
+
+<div th:with="link = ${pageRequestDTO.getLink()}">
+    <a th:href="|@{/student/list}?${link}|">
+        <button type="button" class="btn btn-primary">목록</button>
+    </a>
+</div>
+
+<div th:with="link = ${pageRequestDTO.getLink()}">
+    <a th:href="|@{/student/modify(sno=${studentDTO.sno})}&${link}|">
+        <button type="button" class="btn btn-info">수정</button>
+    </a>
+</div>
+
+<ul class="restget">
+
+</ul>
+
+
+
+
+
+
+
+
+<div class="row">
+    <div class="col-lg-4">
+
+
+        <div class="chat-panel panel panel-default">
+            <div class="panel-heading">
+                <i class="fa fa-comments fa-fw"></i> 댓글
+                <div class="btn-group pull-right">
+
+                    <button type="button" id="addReplyBtn" class="btn btn-primary btn-sm">register</button>
+
+
+
+                </div>
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <ul class="chat"  data-toggle="modal" data-target="#myModal">
+                    <li class="right clearfix">
+
+                        <div class="chat-body clearfix">
+                            <div class="header">
+                                <strong class="primary-font">Jack Sparrow</strong>
+                                <small class="pull-right text-muted">
+                                    <i class="fa fa-clock-o fa-fw"></i> 12 mins ago
+                                </small>
+                            </div>
+                            <p>
+
+                            </p>
+                        </div>
+                    </li>
+
+                </ul>
+            </div>
+            <!-- /.panel-body -->
+
+            <div class="panel-footer">
+                <ul class="pagination">
+
+                </ul>
+            </div>
+            <!-- /.panel-footer -->
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+
+
+
+<script type="text/javascript" src="/js/reply.js"></script>
+<script th:inline = "javascript">
+
+
+
+    $(document).ready(function() { //ready 함수 생성
+        var snoValue = [[${studentDTO.sno}]]; //댓글을 달 게시글 번호를 지정해야해서 bnoValue 생성 및 값 투입
+        var replyUL = $(".chat"); // chat 클래스 선택
+        var pagination = $(".pagination");
+        console.log(replyUL);
+        showList(1); // 기능은 전체 데이터를 가져오는 함수 (페이지번호);
+
+
+
+
+        //버튼들 불러오기
+        var modalModBtn = $("#modalModBtn");
+        var modalRemoveBtn = $("#modalRemoveBtn");
+        var modalRegisterBtn = $("#modalRegisterBtn");
+        var modalCloseBtn = $("#modalCloseBtn");
+
+
+        function showList(page) {
+
+            console.log("쇼올에 들어ㅗㅇㅁ"+page);
+            //console.log(dtoList[0].replyText);
+
+            replyService.getList({sno : snoValue , page: page},
+                function (pageResponseDTO) {
+                    console.log("pageResponseDTO 값" + pageResponseDTO.dtoList[0].replyText);
+                    console.log("pageResponseDTO page" + pageResponseDTO.page);
+                    console.log("pageResponseDTO total" + pageResponseDTO.total);
+                    //값을 받은 걸로 출력까지
+
+                    if (pageResponseDTO.page == -1) {
+                        pageNum = Math.ceil(pageResponseDTO.total / 10.0)
+                        showList(pageNum);
+                        return;
+                    }
+                    let dtoList = pageResponseDTO.dtoList;
+                    let str = ""; //화면에 출력해줄 내용을 담는 용도 ex)input
+                    let str1 = ""; //화면에 페이징처리 내용담는 용도
+                    if (dtoList == null || dtoList.length == 0) {
+                        return;
+                    }
+
+                    for (let i = 0, len = dtoList.length || 0; i < len; i++) {
+                        str += "<div align='right'> <button type='button' class='modalRemoveDirectBtn' value='remove' data-rno=" + dtoList[i].rno + ">remove</button></div>"
+                        str += '<li class="right clearfix" data-rno="' + dtoList[i].rno + '"><div class="chat-body clearfix" style="margin-right: 0px;"><div class="header"><strong class="primary-font">';
+                        str += dtoList[i].repler
+                        str += " #" + dtoList[i].rno
+                        str += '</strong><small class="pull-right text-muted"><i class="fa fa-clock-o fa-fw"></i>';
+                        str += dtoList[i].regDate
+                        str += '</small></div><p>';
+                        str += dtoList[i].replyText
+                        str += '</p></div></li>';
+                    }
+                    replyUL.html(str);
+
+
+                    //댓글 페이지 이전,다음 등 구현
+                    if(pageResponseDTO.prev) {
+                        str1 += '<li class="paginate_button previous" aria-controls="dataTables-example" tabIndex="0" id="dataTables-example_previous"><a href="#" data-page="'+ (pageResponseDTO.start-1)+'">';
+                        str1 += '이전</a></li>';
+                    }
+
+                    console.log(pageResponseDTO.start + " : " + pageResponseDTO.end);
+                    for (let i = pageResponseDTO.start, j = pageResponseDTO.end; i<=j; i++){
+                        str1 += '<li class="paginate_button';
+                        str1 += (i == pageResponseDTO.page) ? 'active' : '';
+                        str1 += '" aria-controls="dataTables-example" tabIndex="0"><a href="#" >';
+                        str1 += i;
+                        str1 += '</a></li>';
+                    }
+
+                    if (pageResponseDTO.next){
+                        str1 += '<li class="paginate_button next" aria-controls="dataTables-example" tabIndex="0" id="dataTables-example_previous"><a href="#" data-page="'+(+pageResponseDTO.end+1) +'">';
+                        str1 += '다음</a></li>';
+                    }
+
+                    pagination.html(str1);
+
+
+                    //replyUL.innerHTML += str;
+                    //replyUL.append(str);
+                }
+            )
+
+        };
+
+
+        var modal = $(".modal"); //모달 클래스를 선택
+        var modalInputRepler = modal.find("input[name='repler']")
+        //변수명 modalInputRepler = 모달클래스.찾는다("input[네임='지정한네임']")
+        var modalInputReplyText = modal.find("input[name='replyText']") //모달클래스의 name이 replyText인것을 찾는다
+        var modalInputRegDate = modal.find("input[name='regDate1']")
+
+
+
+
+
+        $("#addReplyBtn").on("click",function (e){ //댓글등록버튼을 눌렀을 때
+            modal.modal("show"); //모달창을 띄워주는 함수
+            modalRegisterBtn.show();
+            modal.find("input").val(""); //input태그를 찾아서 value를 ""로 만듬
+            modalInputRegDate.closest("div").hide(); //날짜 넣는 태그를 숨겼다
+            modalRemoveBtn.hide(); //지우기버튼,수정버튼도 숨겼다
+            modalModBtn.hide();
+        });
+
+
+
+        $("#modalRegisterBtn").on("click",function (e){ //댓글등록버튼을 눌렀을 때
+            console.log("하이");
+
+            //reply를 객체형태로 만듬
+            var reply = {
+                replyText : modalInputReplyText.val(), //댓글 내용 변수를 replyText에 저장
+                repler : modalInputRepler.val(),        //댓글 작성자 변수를 repler에 저장
+                sno : snoValue                         //처음에 지정한 bno
+            };
+
+
+
+
+            replyService.add(reply,function (result){  //reply.js add를 사용
+                alert(result);
+                modal.find("input").val("");
+                showList(1);
+                modal.modal("hide");
+                //modalCloseBtn.trigger("click");
+            });
+
+        });
+
+        //수정
+        $(".chat").on("click","li",function (e){
+
+            let rno = $(this).data("rno");
+            console.log("클릭한 내용의 rno"+ rno);
+            //필요한 파라미터값 : rno callback error
+            replyService.get(rno,function (data) {
+
+                modalInputReplyText.val(data.replyText);
+                modalInputRepler.val(data.repler);
+                modal.data("rno",data.rno);
+
+                modal.find("button[id != 'modalCloseBtn']").hide();
+                modalModBtn.show();
+                modalRemoveBtn.show();
+
+            })
+
+
+        })
+
+
+
+
+        modalModBtn.on("click",function (e) {
+
+            let reply = {
+                sno : snoValue,
+                replyText : modalInputReplyText.val(), //댓글 내용 변수를 replyText에 저장
+                rno : modal.data("rno"),
+                repler : modalInputRepler.val()
+            };
+
+            replyService.update(reply,function (result) {
+
+                alert(result);
+                showList(1);
+                modalCloseBtn.trigger("click");
+
+
+            });
+
+        });
+
+        modalRemoveBtn.on("click", function (e) {
+
+            let rno = modal.data("rno");
+
+            replyService.remove(rno, function (delResult) {
+                alert("삭제됨" + delResult.rno);
+                showList(1);
+                modalCloseBtn.trigger("click");
+            });
+
+
+        });
+
+        pagination.on("click", "a",function (e) {
+
+            e.preventDefault();
+            //console.log($(this).text());
+
+
+            // let page = $(this).data("page") || $(this).text();
+
+            let page = $(this).text();
+            let pageNum = $(this).data("page");
+
+            console.log("페이징처리에서의 페이지 : " +page);
+            console.log(pageNum);
+
+            if(page == '이전'){
+                page = pageNum;
+            }
+            if(page == '다음'){
+                page = pageNum;
+            }
+
+            showList(page);
+
+        })
+
+        $("#modalRemoveDirectBtn").on("click",function (e) {
+
+
+            let rno = modal.data("rno");
+
+            replyService.remove(rno, function (delResult) {
+                alert("삭제됨" + delResult.rno);
+                showList(1);
+                modalCloseBtn.trigger("click");
+            });
+
+        });
+
+
+
+
+    });
+
+</script>
+
+
+
+
+
+
+
+
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"
+     style="display: none; padding-right: 17px;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form">
+                    <div class="form-group has-success">
+                        <label class="control-label" for="replyText">댓글내용</label>
+                        <input type="text" class="form-control replyText" id="replyText" name="replyText">
+                    </div>
+                    <div class="form-group has-success">
+                        <label class="control-label" for="repler">작성자</label>
+                        <input type="text" class="form-control repler" id="repler" name="repler">
+                    </div>
+                    <div class="form-group has-success">
+                        <label class="control-label" for="regDate1">등록시간</label>
+                        <input type="text" class="form-control regDate1" id="regDate1" name="regDate1">
+                    </div>
+                </form>
+
+
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-primary" id="modalModBtn">Modify</button>
+                <button type="button" class="btn btn-primary" id="modalRemoveBtn">Remove</button>
+                <button type="button" class="btn btn-primary" id="modalRegisterBtn">Register</button>
+                <button type="button" class="btn btn-default" id="modalCloseBtn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+
+
+
+
+
+<!-- jQuery -->
+<script src="/vendor/jquery/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+
+<!-- Metis Menu Plugin JavaScript -->
+<script src="/vendor/metisMenu/metisMenu.min.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/dist/js/sb-admin-2.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

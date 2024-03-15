@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en"xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/basic.html}">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="row mt-3">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Student Read
+                </div>
+                <div class="card-body">
+                    <div class="input-group mb-3">
+                                <span class="input-group-text">이름</span>
+                                <input type="text" name="name" th:value="${dto.name}" class="form-control" readonly>
+                    </div>
+                    <div class="input-group mb-3">
+                                <span class="input-group-text">학년</span>
+                                <input type="text" name="level" th:value="${dto.level}" class="form-control" readonly>
+                    </div>
+                    <div class="input-group mb-3">
+                                <span class="input-group-text">학급</span>
+                                <input type="text" name="classnum" th:value="${dto.classnum}" class="form-control" readonly>
+                    </div>
+                    <div class="input-group mb-3">
+                                <span class="input-group-text">성적</span>
+                                <input type="text" name="score" th:value="${dto.score}" class="form-control" readonly>
+                    </div>
+                    <div class="input-group mb-3">
+                                <span class="input-group-text">태도점수</span>
+                                <input type="text" name="grade" th:value="${dto.grade}" class="form-control" readonly>
+                    </div>
+                    <div class="input-group mb-3">
+                                <span class="input-group-text">전화번호</span>
+                                <input type="text" name="phone" th:value="${dto.phone}" class="form-control" readonly>
+                    </div>
+                    <div class="input-group mb-3">
+                                <span class="input-group-text">비상연락처</span>
+                                <input type="text" name="phone2" th:value="${dto.phone2}" class="form-control" readonly>
+                    </div>
+                    <div class="input-group mb-3">
+                                <span class="input-group-text">생년월일</span>
+                                <input type="text" name="birthdate" th:value="${dto.birthdate}" class="form-control" readonly>
+                    </div>
+                    <div class="input-group mb-3">
+                                <span class="input-group-text">비고</span>
+                                <input type="text" name="comment" th:value="${dto.comment}" class="form-control" readonly>
+                    </div>
+
+                    <div class="my-4">
+                    <div class="float-end" th:with="link = ${pageRequestDTO.getLink()}">
+                        <a th:href="|@{/student/list2}?${link}|" class="text-decoration-none">
+                            <button type="button" class="btn btn-primary">목록</button>
+                        </a>
+                        <a th:href="|@{/student/modify2(sno=${dto.sno})}&${link}|" class="text-decoration-none">
+                        <button type="button" class="btn btn-secondary">수정</button>
+                        </a>
+                    </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <div class="my-4">
+                <button class="btn btn-info addReplyBtn">ADD REPLY</button>
+            </div>
+            <ul class="list-group replyList">
+            </ul>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col">
+            <ul class="pagination replyPaging">
+            </ul>
+        </div>
+    </div>
+
+    <div class="modal registerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Register Reply</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Reply Text</span>
+                            <input type="text" class="form-control replyText">
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Repler</span>
+                            <input type="text" class="form-control repler">
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary registerBtn">Register</button>
+                        <button type="button" class="btn btn-outline-dark closeRegisterBtn">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/js/reply2.js"></script>
+</div>
+
+
+
+<script layout:fragment="script" th:inline="javascript">
+
+    const sno = [[${dto.sno}]]
+
+    const replyList = document.querySelector('.replyList') //댓글 목록 DOM
+    const replyPaging = document.querySelector('.replyPaging') //페이지 목록 DOM
+
+    const registerModal = new bootstrap.Modal(document.querySelector(".registerModal"))
+    //댓글 등록 모달
+
+    const registerBtn = document.querySelector(".registerBtn") //댓글 등록버튼
+    const replyText = document.querySelector(".replyText") //댓글내용
+    const repler = document.querySelector(".repler") //작성자
+    const closeRegisterBtn = document.querySelector(".closeRegisterBtn") //취소버튼
+
+
+
+    document.querySelector(".addReplyBtn").addEventListener("click",function (e){
+        registerModal.show()
+    },false)
+
+    closeRegisterBtn.addEventListener("click",function (e) {
+        registerModal.hide()
+    },false
+    )
+
+
+
+
+
+    function printList(dtoList){ //댓글 목록 출력
+        console.log('aaaa');
+        let str = '';
+
+        if(dtoList && dtoList.length > 0){ //dtoList의 길이가 0보다 길다면
+
+            for(const dto of dtoList){ //dtoList의 끝까지 반복
+                str += `<li class="list-group-item d-flex replyItem">
+                        <span class="col-2">${dto.rno}</span>
+                        <span class="col-6" data-rno="${dto.rno}">${dto.replyText}</span>
+                        <span class="col-2">${dto.repler}</span>
+                        <span class="col-2">${dto.regDate}</span>
+                        </li>`
+            } //필요한 요소들을 전부 <li> 태그 안에 넣고 str에 더한다
+        }
+        replyList.innerHTML = str //모두 더해진 str을 .replyList DOM에 담는다
+    }
+
+    function printPages(data){ //페이지 목록 출력
+
+        //pagination
+        let pageStr = '';
+
+        if(data.prev){// data(페이징 정보가 담겨있음)의 prev가 true라면
+            pageStr += `<li class="page-item"><a class="page-link" data-page="${data.start-1}">PREV</a></li>` //data의 start-1 페이지로 가는 버튼 PREV 생성
+        }
+        for(let i = data.start; i <= data.end; i++){ //start가 end 이하라면 반복
+            pageStr += `<li class="page-item ${i == data.page?"active":""} "><a class="page-link" data-page="${i}">${i}</a></li>` //페이지를 하나씩 추가해준다.
+        }
+
+        if(data.prev){
+            pageStr += `<li class="page-item"><a class="page-link" data-page="${data.end+1}">NEXT</a></li>` //end+1 페이지로 가는 NEXT 생성
+        }
+
+        replyPaging.innerHTML = pageStr //위에서 더해진 페이징 처리 값들을 출력한다.
+
+
+    }
+    function printReplies(page,size,goLast){
+
+        getList({sno, page, size, goLast}).then(
+            data => {
+                printList(data.dtoList) //목록 처리
+                printPages(data) //페이지 처리
+            }
+        ).catch(e =>{
+            console.error(e)
+        })
+    }
+
+    printReplies(1,10);
+
+
+</script>
+
+</body>
+</html>

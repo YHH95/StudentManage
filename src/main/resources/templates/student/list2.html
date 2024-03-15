@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en"xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout/basic.html}">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="row mt-3">
+        <form action="/student/list2" method="get">
+        <div class="col">
+            <input type="hidden" name="size" th:value="${pageRequestDTO.size}">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <select class="form-select" name="type">
+                        <option value="">---</option>
+                        <option value="n" th:selected="${pageRequestDTO.type=='n'}">이름</option>
+                        <option value="c" th:selected="${pageRequestDTO.type=='l'}">학년</option>
+                    </select>
+                </div>
+                <input type="text" class="form-control" name="keyword" th:value="${pageRequestDTO.keyword}">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary searchBtn" type="submit">검색</button>
+                    <button class="btn btn-outline-secondary clearBtn" type="button">초기화</button>
+                </div>
+            </div>
+        <div class="card">
+            <div class="card-header">
+    <h1>Board List</h1>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Board List</h5>
+
+
+
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">번호</th>
+                        <th scope="col">이름</th>
+                        <th scope="col">학년</th>
+                        <th scope="col">학급</th>
+                        <th scope="col">성적</th>
+                        <th scope="col">상벌점</th>
+
+                    </tr>
+                    </thead>
+                    <tbody th:with="link = ${pageRequestDTO.getLink()}">
+                    <tr th:each="dto:${responseDTO.dtoList}">
+                        <th scope="row">[[${dto.sno}]]</th>
+                        <td>
+                           <a th:href="|@{/student/read2(sno = ${dto.sno})}&${link}|"> [[${dto.name}]] </a>
+                        </td>
+                        <td>[[${dto.level}]]</td>
+                        <td>[[${dto.classnum}]]</td>
+                        <td>[[${dto.score}]]</td>
+                        <td>[[${dto.grade}]]</td>
+                    </tr>
+                    </tbody>
+                </table>
+
+
+                <div class="float-end">
+                    <ul class="pagination flex-wrap">
+                        <li class="page-item" th:if="${responseDTO.prev}">
+                            <a class="page-link" th:data-num="${responseDTO.start -1}">Previous</a>
+                        </li>
+
+                        <th:block th:each="i:${#numbers.sequence(responseDTO.start,responseDTO.end)}">
+                            <li th:class="${responseDTO.page == i}?'page-item active':'page-item'">
+                                <a class="page-link" th:data-num="${i}">[[${i}]]</a>
+                            </li>
+                        </th:block>
+
+                        <li class="page-item" th:if="${responseDTO.next}">
+                            <a class="page-link" th:data-num="${responseDTO.end+1}">Next</a>
+                        </li>
+                    </ul>
+                </div>
+
+
+
+            </div>
+        </div>
+        </div>
+        </form>
+
+        <div class="modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Modal title</h5>
+                        <button type="button" class="btn-close" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Modal body text goes here.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn-primary" data-bs-dismiss="modal">Save changes</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script layout:fragment="script" th:inline="javascript">
+    console.log("script..............")
+
+    //show modal
+    const result = [[${result}]]
+    console.log(result)
+
+    const modal = new bootstrap.Modal(document.querySelector(".modal"))
+
+    if(result){
+        modal.show()
+    }
+
+    document.querySelector(".pagination").addEventListener("click",function (e) {
+        e.preventDefault()
+        e.stopPropagation()
+        const target = e.target
+
+        if(target.tagName !== 'A'){
+            return
+        }
+
+        const num = target.getAttribute("data-num")
+        const formObj = document.querySelector("form")
+        formObj.innerHTML += `<input type='hidden' name='page' value='${num}'>`
+
+        formObj.submit();
+    },false)
+
+    document.querySelector(".clearBtn").addEventListener("click",function (e) {
+        e.preventDefault()
+        e.stopPropagation()
+
+        self.location = '/student/list2'
+    },false)
+
+
+
+
+</script>
+
+</body>
+</html>
