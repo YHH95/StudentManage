@@ -56,15 +56,16 @@ public class ReplyController {
 
 
 
-    @PutMapping(value = "/",consumes = MediaType.APPLICATION_JSON_VALUE,produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String,Long> modify(@RequestBody ReplyDTO replyDTO){
+
+    @PutMapping(value = "/{rno}",consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String,Long> modify(@PathVariable("rno") Long rno,@RequestBody ReplyDTO replyDTO){
+
+        replyDTO.setRno(rno);
 
         replyService.modify(replyDTO);
 
-        log.info(replyDTO);
-
         Map<String,Long> result = new HashMap<>();
-        result.put("rno",replyDTO.getRno());
+        result.put("rno",rno);
         return result;
     }
 

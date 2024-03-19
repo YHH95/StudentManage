@@ -13,7 +13,7 @@ import lombok.*;
 @NoArgsConstructor
 @ToString(exclude = "student")
 //Reply를 출력할 때 Student를 같이 출력하도록 해야하므로 exclude 해야한다
-public class Reply {
+public class Reply extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +24,8 @@ public class Reply {
 
     private String replyText;
     private String repler;
+
+
 
 
     public void changeText(String replyText){
